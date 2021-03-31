@@ -46,22 +46,20 @@ public class StudentList extends SingleList<Student>
             if(temp.getData().getId().equals(id))
                 return temp;
         }
-        System.out.println("일치하는 학번이 존재하지 않습니다.");
         return null;
     }
 
     public String toString()
     {
         if(isEmpty())
-            return null;
+            return "비어있는 리스트입니다.";
 
-        String str = null;
+        String str = "";
         Node<Student> studentNode = head;
 
         for(int i=0; i<size; i++, studentNode=studentNode.getNext())
-        {
             str += studentNode+"\n";
-        }
+
         return str;
     }
 }

@@ -6,16 +6,32 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        StudentList stuList = new StudentList();
-        displayMenu();
-        int menu;
-        do {
-            System.out.print("원하는 기능을 선택하세요. : ");
-            menu = sc.nextInt();
-            handleMenu(args, menu, sc, stuList);
-        } while(menu != 4);
-        sc.close();
+        try {
+            File file = new File(String.valueOf(args[0]));
+            if (!file.exists())
+                file.createNewFile();
+
+            StudentList sList = new StudentList();
+            readFile(file, sList);
+            displayMenu();
+            Scanner sc = new Scanner(System.in);
+            int menu;
+
+            do
+            {
+                System.out.print("원하는 기능을 선택하세요. : ");
+                menu = sc.nextInt();
+                sc.nextLine();
+                handleMenu(file, menu, sc, sList);
+            }
+            while (menu != 4);
+
+            sc.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void displayMenu()
@@ -29,43 +45,35 @@ public class Main {
         System.out.println("==========================");
     }
 
-    public static void handleMenu(String[] args, int menu, Scanner sc, StudentList sList)
+    public static void handleMenu(File file, int menu, Scanner sc, StudentList sList)
     {
-        if(menu == 1)
+        switch (menu)
         {
-            sc.nextLine();
-            System.out.print("학번, 이름, 동아리들을 입력하세요. : ");
-            String input = sc.nextLine(); // 한 줄 읽기
-            generateStudent(sc, sList, input);
+            case 1:
+                System.out.print("학번, 이름, 동아리들을 입력하세요. : ");
+                generateStudent(sList, sc.nextLine());
+                break;
+            case 2:
+                System.out.print("학번을 입력하세요. : ");
+                deleteStudent(sc, sList);
+                break;
+            case 3:
+                retrieveAll(sList);
+                break;
+            case 4:
+                saveFile(file, sList);
+                break;
+            default:
+                System.out.println("올바른 메뉴 번호를 입력해주세요.");
         }
-        else if(menu == 2)
-        {
-            System.out.print("학번을 입력하세요. :");
-            String id = sc.next();
-            System.out.println(sList.search(id));
-        }
-        else if(menu == 3)
-        {
-           retrieveAll(args, sList, sc);
-        }
-        else if(menu == 4)
-        {
-            saveFile(args, sList);
-        }
-        else
-            System.out.println("올바른 메뉴 번호를 입력해주세요.");
     }
 
-    public static void saveFile(String []args, StudentList sList)
+    public static void saveFile(File file, StudentList sList)
     {
         try
         {
-            File file = new File(args[0]);
-            if(!file.exists())
-                file.createNewFile();
-
             BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-            bw.write(String.valueOf(sList));
+            bw.write(String.valueOf(sList));  // why??????????????????????
             bw.close();
         }
         catch (IOException e)
@@ -74,59 +82,62 @@ public class Main {
         }
     }
 
-    public static void retrieveAll(String []args, StudentList sList, Scanner sc)
+    public static void readFile(File file, StudentList sList)
     {
         try
         {
-            File file = new File(args[0]);
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
 
             while((line = br.readLine()) != null)
-            {
-                generateStudent(sc, sList, line);
-            }
+                generateStudent(sList, line);
+
             br.close();
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
-
     }
 
-    public static void generateStudent(Scanner sc, StudentList sList, String input)
+    public static void retrieveAll(StudentList sList)
     {
-        try {
-            input = input.trim();  // 앞뒤 공백 제거
+        System.out.println(sList);
+    }
 
-            String [] array;
-            array = input.split(" "); // 공백을 기준으로 배열에 원소 저장
+    public static void deleteStudent(Scanner sc, StudentList sList)
+    {
+        String id = sc.next();
+        Node<Student> node = sList.search(id);
+        if (node != null)
+            System.out.println(node);
+        else
+            System.out.println("일치하는 학번이 존재하지 않습니다.");
+    }
 
-            Integer.parseInt(array[0]); // 0번째(학번)가 숫자 형태의 문자열이 아닐 경우 NumberFormatException 발생
+    public static void generateStudent(StudentList sList, String input)
+    {
+        try
+        {
+            String[] array;
+            array = input.split(" ");
+
+            // 0번째(학번)가 숫자 형태의 문자열이 아닐 경우 NumberFormatException 발생
+            Integer.parseInt(array[0]);
 
             Student student = new Student(array[0], array[1]);
-            sList.add(student); // 만약 중복된 학생이 있다면 DuplicatedStudentException 발생할 것임.
+            sList.add(student); // 만약 중복된 학생이 있다면 DuplicatedStudentException 발생
 
-            if(array.length == 3) // 동아리가 입력된 경우
-                student.setClub(generateClubList(array[2]));
+            String str = "";
+            for(int i=2; i<array.length; str+=array[i], i++) {
+            }
+            student.setClub(new ClubList(str));
 
         } catch (NumberFormatException e) {
             System.out.println("Warning : 잘못된 학번");
         } catch (IndexOutOfBoundsException e) {
             System.out.println("IndexOutOfBoundsException");
         }
-    }
-
-    public static ClubList generateClubList(String clubs)
-    {
-        ClubList clubList = new ClubList();
-        String [] array;
-        array = clubs.split("/");
-
-        for(int i=0; i<array.length; i++)
-             clubList.addFirst(array[i]);
-        return clubList;
     }
 }
 

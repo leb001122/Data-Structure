@@ -6,30 +6,30 @@ public class Student
     private String id;
     private ClubList club;
 
-    public Student(String name, String id)
+    public Student(String id, String name)
     {
-        this.name = name;
         this.id = id;
+        this.name = name;
         this.club = null;
     }
 
-    public Student(String name, String id, ClubList club)
+    public Student(String id, String name, ClubList club)
     {
-        this.name = name;
         this.id = id;
+        this.name = name;
         this.club = club;
     }
 
-    public void setName(String name) { this.name = name; }
     public void setId(String id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
     public void setClub(ClubList club) { this.club = club; }
-    public String getName() { return name; }
     public String getId() { return id; }
+    public String getName() { return name; }
     public ClubList getClub() { return club; }
 
     public String toString()
     {
-        return name+" "+id+" "+club;
+        return id+" "+name+" "+club;
     }
 
 }
